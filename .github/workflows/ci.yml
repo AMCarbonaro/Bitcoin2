@@ -112,7 +112,8 @@ jobs:
     # one for the branch push and one for the pull request.
     # This can be avoided by setting SKIP_BRANCH_PUSH=true as a custom env variable
     # in Github repository settings.
-    if: ${{ vars.SKIP_BRANCH_PUSH != 'true' || github.event_name == 'pull_request' }}
+    # Skip on forks: full Bitcoin Core macOS CI runs only in upstream repo.
+    if: ${{ (vars.SKIP_BRANCH_PUSH != 'true' || github.event_name == 'pull_request') && github.repository == 'bitcoin/bitcoin' }}
 
     timeout-minutes: 120
 
@@ -566,7 +567,8 @@ jobs:
     name: 'lint'
     needs: runners
     runs-on: ${{ needs.runners.outputs.use-cirrus-runners == 'true' && 'ghcr.io/cirruslabs/ubuntu-runner-amd64:24.04-xs' || 'ubuntu-24.04' }}
-    if: ${{ vars.SKIP_BRANCH_PUSH != 'true' || github.event_name == 'pull_request' }}
+    # Skip on forks: Bitcoin Core lint runs only in upstream repo.
+    if: ${{ (vars.SKIP_BRANCH_PUSH != 'true' || github.event_name == 'pull_request') && github.repository == 'bitcoin/bitcoin' }}
     timeout-minutes: 20
     env:
       CONTAINER_NAME: "bitcoin-linter"
