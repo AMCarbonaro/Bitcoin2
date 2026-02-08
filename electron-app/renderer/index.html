@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitcoin2 Miner</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: #0f1419; color: #e6edf3; }
+    h1 { font-size: 1.25rem; margin-top: 0; }
+    label { display: block; margin-top: 10px; margin-bottom: 4px; }
+    input, button { width: 100%; padding: 10px; margin-bottom: 8px; background: #21262d; border: 1px solid #30363d; color: #e6edf3; border-radius: 6px; }
+    button { cursor: pointer; font-weight: 600; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    button.primary { background: #238636; border-color: #238636; }
+    button.danger { background: #da3633; border-color: #da3633; }
+    .status { margin-top: 12px; padding: 10px; border-radius: 6px; background: #161b22; font-size: 0.9rem; min-height: 48px; }
+    .status.success { border-left: 4px solid #3fb950; }
+    .status.error { border-left: 4px solid #f85149; }
+    .mono { font-family: ui-monospace, monospace; font-size: 0.85rem; word-break: break-all; }
+    a { color: #58a6ff; }
+    .node-section { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+    .node-section-title { margin: 0 0 8px; font-size: 0.9rem; color: #8b949e; }
+    .btn-node { padding: 8px 14px; margin-right: 8px; margin-bottom: 4px; border-radius: 6px; font-weight: 600; cursor: pointer; background: #238636; border: none; color: #fff; }
+    .btn-node.danger { background: #da3633; }
+    .btn-node:hover { opacity: 0.9; }
+    .node-status { font-size: 0.85rem; color: #3fb950; margin: 8px 0 0; }
+    .node-no-bundled { font-size: 0.85rem; color: #8b949e; margin: 8px 0 0; }
+  </style>
+</head>
+<body>
+  <h1>Bitcoin2 Miner</h1>
+  <p style="color:#8b949e; font-size:0.9rem;">Connect to <strong>your</strong> Bitcoin2 node and mine with one click. You must run your own node—rewards go to your b2 address.</p>
+
+  <div id="nodeSection" class="node-section" style="display:none;">
+    <p class="node-section-title">Run the node from this app (no terminal)</p>
+    <button type="button" id="btnStartNode" class="btn-node">Start Bitcoin2 node</button>
+    <button type="button" id="btnStopNode" class="btn-node danger" style="display:none;">Stop node</button>
+    <p id="nodeStatus" class="node-status" style="display:none;"></p>
+    <p id="nodeNoBundled" class="node-no-bundled" style="display:none;"></p>
+  </div>
+
+  <label>Node RPC URL</label>
+  <input type="text" id="rpcUrl" placeholder="http://user:password@127.0.0.1:8332" value="http://user:password@127.0.0.1:8332">
+
+  <button type="button" id="btnTest">Test connection</button>
+
+  <label>Mining address (b2...)</label>
+  <input type="text" id="address" placeholder="b21q...">
+  <button type="button" id="btnGetAddress">Get new address from node</button>
+
+  <button type="button" id="btnStart" class="primary">Start mining</button>
+  <button type="button" id="btnStop" class="danger" style="display:none;">Stop mining</button>
+
+  <div id="status" class="status"></div>
+
+  <p style="margin-top:16px; font-size:0.8rem; color:#8b949e;">
+    No bundled node? <a href="https://github.com/AMCarbonaro/Bitcoin2/blob/master/docs/RUN_A_NODE.md" target="_blank">Run a node manually (docs)</a>
+  </p>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
