@@ -11,15 +11,37 @@
   "build": {
     "appId": "org.bitcoin2.miner",
     "productName": "Bitcoin2 Miner",
-    "directories": { "output": "dist" },
-    "files": ["main.js", "preload.js", "renderer/**"],
-    "extraResources": [{ "from": "bin/", "to": "bin", "filter": ["**/*"] }],
-    "mac": { "category": "public.app-category.finance" },
-    "win": { "target": "nsis" },
-    "linux": { "target": "AppImage" }
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**"
+    ],
+    "extraResources": [
+      {
+        "from": "bin/",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.finance",
+      "identity": null
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   },
   "devDependencies": {
     "electron": "^28.0.0",
     "electron-builder": "^24.9.1"
-  }
+  },
+  "author": "AMCarbonaro"
 }
