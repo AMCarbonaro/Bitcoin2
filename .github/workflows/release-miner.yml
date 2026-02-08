@@ -34,7 +34,7 @@ jobs:
           sudo apt-get install -y build-essential libtool autotools-dev automake pkg-config \
             libssl-dev libevent-dev bsdmainutils python3 cmake ninja-build libsqlite3-dev \
             libboost-dev libboost-chrono-dev libboost-filesystem-dev libboost-system-dev \
-            libboost-thread-dev libboost-test-dev
+            libboost-thread-dev libboost-test-dev libfuse2
 
       - name: Install macOS deps
         if: runner.os == 'macOS'
@@ -50,12 +50,13 @@ jobs:
             -DBUILD_BITCOIN_UTILS=ON \
             -DENABLE_IPC=OFF
           ninja bitcoind bitcoin-cli
+          ls -la bin/bitcoind bin/bitcoin-cli || ls -la bin/
 
       - name: Copy node binaries to electron-app
         run: |
           mkdir -p electron-app/bin/${{ matrix.platform }}/${{ matrix.arch }}
-          cp build/bin/bitcoind electron-app/bin/${{ matrix.platform }}/${{ matrix.arch }}/
-          cp build/bin/bitcoin-cli electron-app/bin/${{ matrix.platform }}/${{ matrix.arch }}/
+          cp build/bin/bitcoind build/bin/bitcoin-cli electron-app/bin/${{ matrix.platform }}/${{ matrix.arch }}/
+          ls -la electron-app/bin/${{ matrix.platform }}/${{ matrix.arch }}/
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
