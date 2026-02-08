@@ -1,0 +1,131 @@
+# Build Bitcoin2 Miner with bundled node and publish to GitHub Releases
+# Trigger: push tag v* (e.g. v1.0.0)
+
+name: Release Miner
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: build-${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            platform: linux
+            arch: x64
+          - os: macos-14
+            platform: darwin
+            arch: arm64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Linux deps (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libtool autotools-dev automake pkg-config \
+            libssl-dev libevent-dev bsdmainutils python3 cmake ninja-build libsqlite3-dev
+
+      - name: Install macOS deps
+        if: runner.os == 'macOS'
+        run: |
+          brew install cmake ninja
+
+      - name: Build Bitcoin2 node
+        run: |
+          mkdir -p build && cd build
+          cmake -GNinja .. -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_BITCOIN_QT=OFF \
+            -DBUILD_BITCOIN_CLI=ON \
+            -DBUILD_BITCOIN_UTILS=ON \
+            -DENABLE_IPC=OFF
+          ninja bitcoind bitcoin-cli
+
+      - name: Copy node binaries to electron-app
+        run: |
+          mkdir -p electron-app/bin/${{ matrix.platform }}/${{ matrix.arch }}
+          cp build/bin/bitcoind electron-app/bin/${{ matrix.platform }}/${{ matrix.arch }}/
+          cp build/bin/bitcoin-cli electron-app/bin/${{ matrix.platform }}/${{ matrix.arch }}/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: electron-app/package-lock.json
+
+      - name: Install Electron app deps
+        working-directory: electron-app
+        run: npm ci
+
+      - name: Build Electron app
+        working-directory: electron-app
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run dist
+
+      - name: Upload artifacts (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bitcoin2-miner-linux-x64
+          path: electron-app/dist/
+
+      - name: Upload artifacts (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bitcoin2-miner-darwin-arm64
+          path: electron-app/dist/
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Bitcoin2 Miner ${{ github.ref_name }}
+          body: |
+            ## Bitcoin2 Miner (with bundled node)
+
+            One download includes everything: miner app + Bitcoin2 node (bitcoind).
+            Run the app, click **Start Bitcoin2 node**, wait for sync, then **Start mining**.
+
+            ### Downloads
+
+            Choose the file for your platform:
+            - **macOS (Apple Silicon):** bitcoin2-miner-darwin-arm64
+            - **Linux (x64):** bitcoin2-miner-linux-x64
+
+            ### Requirements
+
+            - Run your own node (included in the app—click "Start Bitcoin2 node")
+            - No pools; you mine on your own node
+          files: artifacts/**/*
+          draft: false

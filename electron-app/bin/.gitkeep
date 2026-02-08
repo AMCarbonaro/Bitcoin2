@@ -1,0 +1,3 @@
+# Bundled node binaries go here: bin/<platform>/<arch>/bitcoind, bitcoin-cli
+# e.g. bin/darwin/arm64/bitcoind, bin/linux/x64/bitcoind
+# CI creates these before building; for local dev, run the release workflow or copy built binaries here.
