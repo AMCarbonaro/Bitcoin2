@@ -32,12 +32,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libtool autotools-dev automake pkg-config \
-            libssl-dev libevent-dev bsdmainutils python3 cmake ninja-build libsqlite3-dev
+            libssl-dev libevent-dev bsdmainutils python3 cmake ninja-build libsqlite3-dev \
+            libboost-dev libboost-chrono-dev libboost-filesystem-dev libboost-system-dev \
+            libboost-thread-dev libboost-test-dev
 
       - name: Install macOS deps
         if: runner.os == 'macOS'
         run: |
-          brew install cmake ninja
+          brew install cmake ninja boost
 
       - name: Build Bitcoin2 node
         run: |
